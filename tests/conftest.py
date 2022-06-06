@@ -154,8 +154,7 @@ def make_response(
     """
     response_template = string.Template(json.dumps(template))
     response = response_template.substitute(id=str(song_id))
-    payload = json.loads(response)
-    return payload
+    return json.loads(response)
 
 
 @fixture
@@ -176,8 +175,7 @@ def test_dotenv():
 @fixture
 def test_config():
     """Test config fixture."""
-    config = TestConfig.load()
-    return config
+    return TestConfig.load()
 
 
 @fixture
