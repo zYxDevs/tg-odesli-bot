@@ -192,9 +192,7 @@ class OdesliBot:
         """
         _logger = self.logger_var.get()
         _logger.debug('Sending a welcome message')
-        supported_platforms = []
-        for platform in PLATFORMS.values():
-            supported_platforms.append(platform.name)
+        supported_platforms = [platform.name for platform in PLATFORMS.values()]
         welcome_msg = self.WELCOME_MSG_TEMPLATE.format(
             supported_platforms=' | '.join(supported_platforms)
         )
@@ -286,12 +284,11 @@ class OdesliBot:
                         song_info1.urls_in_text | song_info2.urls_in_text
                     )
                     merged_song_info_indexes.add(idx2)
-        merged_song_infos = tuple(
+        return tuple(
             song_info
             for idx, song_info in enumerate(song_infos)
             if idx not in merged_song_info_indexes
         )
-        return merged_song_infos
 
     async def _find_songs(
         self, text: str, group_message: bool
@@ -325,9 +322,7 @@ class OdesliBot:
             exc.status_code == HTTPStatus.NOT_FOUND for exc in exceptions
         ):
             raise SongNotFoundError
-        # Merge song infos if different platform links point to the same song
-        merged_song_infos = self._merge_same_songs(tuple(song_infos))
-        return merged_song_infos
+        return self._merge_same_songs(tuple(song_infos))
 
     def _format_urls(
         self, song_info: SongInfo, separator: str = ' | '
@@ -396,8 +391,7 @@ class OdesliBot:
                 reply_list.append(f'{song_info.artist} - {song_info.title}')
             platform_urls, __ = self._format_urls(song_info)
             reply_list.append(platform_urls)
-        reply = '\n'.join(reply_list).strip()
-        return reply
+        return '\n'.join(reply_list).strip()
 
     async def handle_inline_query(self, inline_query: InlineQuery):
         """Handle inline query.
@@ -514,7 +508,7 @@ class OdesliBot:
         filtered_params = {
             k: v for k, v in query_dict.items() if not k.startswith('utm_')
         }
-        normalized_url = urlunparse(
+        return urlunparse(
             [
                 parsed.scheme,
                 parsed.netloc,
@@ -524,7 +518,6 @@ class OdesliBot:
                 parsed.fragment,
             ]
         )
-        return normalized_url
 
     async def find_song_by_url(self, song_url: SongUrl) -> SongInfo:
         """Find song info by its URL.
@@ -656,16 +649,18 @@ class OdesliBot:
             # Pick the first thumbnail URL
             if song_entity.get('thumbnail_url') and not thumbnail_url:
                 thumbnail_url = song_entity['thumbnail_url']
-        platform_urls = {}
-        for platform_key, link_entity in data['links'].items():
-            platform_urls[platform_key] = link_entity['url']
+        platform_urls = {
+            platform_key: link_entity['url']
+            for platform_key, link_entity in data['links'].items()
+        }
+
         platform_urls = self._filter_platform_urls(platform_urls)
         # Pick most common title and artist
         titles_counter = Counter(titles)
         title = titles_counter.most_common(1)[0][0]
         artist_counter = Counter(artists)
         artist = artist_counter.most_common(1)[0][0]
-        song_info = SongInfo(
+        return SongInfo(
             ids=ids,
             title=title,
             artist=artist,
@@ -673,7 +668,6 @@ class OdesliBot:
             urls=platform_urls,
             urls_in_text={url},
         )
-        return song_info
 
     async def _start(self):
         """Start polling.  Retry if cannot connect to Telegram servers.
