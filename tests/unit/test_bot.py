@@ -5,7 +5,6 @@ from pytest import mark
 from tg_odesli_bot.bot import OdesliBot, SongInfo
 
 
-@mark.usefixtures('event_loop')
 class TestOdesliBot:
     """Unit tests for Odesli bot."""
 

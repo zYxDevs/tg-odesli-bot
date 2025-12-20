@@ -7,7 +7,7 @@ import logging.config
 import sentry_sdk
 import structlog
 from aiocache import caches
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 from structlog_sentry import SentryProcessor
 
@@ -16,6 +16,10 @@ RendererT = structlog.processors.JSONRenderer | structlog.dev.ConsoleRenderer
 
 class Settings(BaseSettings):
     """Bot configuration."""
+
+    model_config = SettingsConfigDict(
+        env_file='.env', env_prefix='TG_ODESLI_BOT_'
+    )
 
     #: Debug
     DEBUG: bool = False
@@ -83,12 +87,6 @@ class Settings(BaseSettings):
         }
     )
 
-    class Config:
-        """Settings."""
-
-        env_file = '.env'
-        env_prefix = 'TG_ODESLI_BOT_'
-
     def init_logging(self) -> None:
         """Init logging."""
         if self.DEBUG:  # pragma: no cover
@@ -138,6 +136,8 @@ class Settings(BaseSettings):
 class TestSettings(Settings):
     """Testing configuration."""
 
+    model_config = SettingsConfigDict(env_file=None)
+
     #: Testing mode
     TESTING: bool = True
     #: Debug
@@ -150,8 +150,3 @@ class TestSettings(Settings):
     SPOTIFY_CLIENT_ID: str = 'test_id'
     #: Spotify client secret
     SPOTIFY_CLIENT_SECRET: str = 'test_secret'
-
-    class Config:
-        """Settings."""
-
-        env_file = None
