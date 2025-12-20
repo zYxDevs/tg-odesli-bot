@@ -87,10 +87,6 @@ select = [
 ]
 dummy-variable-rgx = "^__$"
 ignore = [
-    # Missing type annotation for self in a class method
-    "ANN101",
-    # Missing type annotation for a class attribute
-    "ANN102",
     # Class attribute {name} is shadowing a python builtin (e.g., `id`)
     "A003",
     # Do not perform function call in argument defaults

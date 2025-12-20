@@ -80,7 +80,6 @@ def make_mock_message(
     return message
 
 
-@mark.usefixtures('event_loop')
 class TestOdesliBot:
     """Integration tests for Odesli bot."""
 
