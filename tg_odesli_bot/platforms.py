@@ -39,6 +39,7 @@ class DeezerPlatform(PlatformABC):
         r'(https?://([a-zA-Z\d-]+\.)*deezer\.com(/\w\w)?/'
         r'(album|track)/[^\s.,]*)'
         r'|(https?://deezer\.page\.link/[^\s.,]*)'
+        r'|(https?://link.deezer.com/[^\s.,]*)'
     )
     name = 'Deezer'
     order = 0
